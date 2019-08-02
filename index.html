@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Resource loader examples</title>
+    <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+            integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+            crossorigin="anonymous">
+    <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/themes/prism-okaidia.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"
+            integrity="sha256-S1J4GVHHDMiirir9qsXWc8ZWw74PHHafpsHp5PXtjTs="
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios-mock-adapter@1.17.0/dist/axios-mock-adapter.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/live-highlight@0.0.1/build/live-highlight.min.js"></script>
+
+    <link rel="stylesheet" href="/examples/base.css">
+    <script src="/build/resource-loader.min.js"></script>
+</head>
+
+<script>
+    LiveHighlight.bootstrap((element, type) => {
+        function getLanguage(type) {
+            switch (type) {
+                case LiveHighlight.TYPE_JAVASCRIPT:
+                    return 'js';
+                case LiveHighlight.TYPE_STYLES:
+                    return 'css';
+                case LiveHighlight.TYPE_HTML:
+                    return 'markup';
+            }
+        }
+
+        element.className = `lang-${getLanguage(type)}`;
+        Prism.highlightElement(element);
+    });
+</script>
+<body>
+<div class="py-4">
+    <div class="container">
+        <h2>Simple example</h2>
+        <p>
+            Lets assume we have some an endpoint which returns some html markup from the server which should be inserted to the page.
+            As long as our JS and CSS are always loaded during the first page rendering we are fine.
+            It doesn't matter what is sent by the server because we already have all possible styles and scripts loaded on the page.
+            But what if we want to load only those styles and scripts which are needed for a particular page?
+            We can determine those files on the server based on what components are presented on the current page.
+            In case of a full page reload we render them as a &lt;link&gt; and &lt;script&gt; tags.
+            To do so with async requests we should be able to load js and css resources which the returning markup depends on.
+        </p>
+        <p>
+            Lets mock up our endpoint that returns html markup. In addition to that server must somehow declare dependencies which should be loaded before html appears within the page.
+            It can be done by specifying files names within the response, for example response can look like this:
+        </p>
+        <pre><code class="lang-json">{
+    "html": "&lt;div&gt;...&lt;/div&gt;",
+    "resources": [
+        "/dist/component1.js",
+        "/dist/component1.css",
+        "/dist/component2.js"
+    ]
+}</code></pre>
+
+        <p>
+            Also we can use headers for specifying resources. By doing this we can keep the original format of the response.
+            Header might look like this:
+        </p>
+        <pre><code
+                class="lang-none">X-Resources: /dist/component1.js, /dist/component1.css, /dist/component2.js</code></pre>
+
+        <p>
+            Our backend uses the second option:
+        </p>
+        <script data-live-highlight>
+            const mock = new AxiosMockAdapter(axios, { delayResponse: 500 });
+            mock.onGet('/getPartial').reply((config) => {
+                let html = `
+                <div data-counter class="counter base-block">
+                    <button class="btn btn-primary" data-button>
+                        Add +1 <span data-content class="badge badge-light counter__content">0</span>
+                    </button>
+                </div>
+                `;
+
+                return [
+                    200,
+                    html,
+                    {
+                        'X-Resources': "/examples/base.css,/examples/counter.js,/examples/counter.css"
+                    }
+                ];
+            });
+        </script>
+
+        <p>
+            Now we should configure our api and add resource loading logic to it. We will use axios as an HTTP client.
+            We intercept response, loading resources with resourceLoader.load and return html as a result.
+        </p>
+
+        <script data-live-highlight>
+            const apiInstance = axios.create({
+                timeout: 60000
+            });
+
+            apiInstance.interceptors.response.use(function (response) {
+                console.log(response);
+                const headers = response.headers['X-Resources'].split(',');
+                return window.resourceLoader.load(headers).then(() => response)
+            });
+        </script>
+        <p>
+            Lets create a simple js component that loads html and initializes other components which are declared within markup with data attributes.
+            Despite the example is quite simple, the same logic works in more complicated cases like showing some pages in popups or navigating between pages using an SPA-like approach.
+        </p>
+        <div data-live-highlight-target="simple"></div>
+
+        <div class="mb-5">
+            <div data-live-highlight="simple">
+                <button class="btn btn-primary" id="load">Load content</button>
+                <div class="mt-3 alert alert-info" role="alert" id="content">
+                </div>
+            </div>
+            <p>
+                Open Chrome Dev Tools Network Tab and click on «Load content». Bacause /examples/base.css is already rendered it won't be downloaded.
+                Unlike it /examples/counter.js and /examples/counter.css will be downloaded.
+            </p>
+        </div>
+
+        <script data-live-highlight="simple">
+            const loadButton = document.getElementById('load');
+            const content = document.getElementById('content');
+
+            loadButton.addEventListener('click', () => {
+                apiInstance.get('/getPartial').then(response => {
+                    content.innerHTML = response.data;
+                    const counterElement = content.querySelector('[data-counter]');
+                    const counter = new Counter(counterElement);
+                    counter.init();
+                })
+            })
+        </script>
+    </div>
+</div>
+</body>
+</html>
