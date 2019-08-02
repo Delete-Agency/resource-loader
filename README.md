@@ -4,6 +4,8 @@ Resource Loader is a javascript library that helps dynamically load styles and j
 The main feature is that it loads resources only when they are not already included to the page.
 So it makes sure none of the required resources will be duplicated.
 
+[Live Demo](https://delete-agency.github.io/resource-loader/)
+
 ## Motivation
 
 There is a popular approach in server-side languages with asset management 
