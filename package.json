@@ -1,11 +1,16 @@
 {
   "name": "@deleteagency/resource-loader",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "main": "index.js",
   "directories": {
     "example": "examples"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Delete-Agency/resource-loader.git"
+  },
+  "homepage": "https://github.com/Delete-Agency/resource-loader",
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
