@@ -1,7 +1,7 @@
 {
   "name": "@deleteagency/resource-loader",
-  "version": "0.0.3",
-  "description": "",
+  "version": "0.0.4",
+  "description": "Dynamically loads styles and js files to the page without duplicating",
   "main": "index.js",
   "directories": {
     "example": "examples"
@@ -17,7 +17,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.5.5",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
