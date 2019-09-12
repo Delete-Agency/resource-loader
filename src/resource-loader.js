@@ -1,20 +1,21 @@
 const RESOURCE_TYPE_SCRIPT = 'script';
 const RESOURCE_TYPE_STYLES = 'styles';
 
-/**
- * Note: There can be some cases when we are trying to get promise from node which was failed to load.
- * It happens because isResourceLoaded relies on window.performance (0Performance Timing API0 that is inconsistent between browsers at the moment:
- * https://github.com/w3c/resource-timing/issues/12
- * Some of the implementations (Safari, Chrome) don't add PerformanceResource entry
- * when particular resource is failed (but they will in the future according to the issue above).
- * As a result we think that the resource is still loading and will be waiting forever
- * because obviously load and error events are not gonna be triggered.
- * These cases aren't covered at the moment and will likely be fixed after browsers have consistent Performance Timing API implementation
- */
 export default class ResourceLoader {
     constructor(preloadedResources = []) {
-        this._preloadedResources = preloadedResources.map(url => this._getResolvedResourceUrl(url));
         this._loadingResources = {};
+        this.setPreloadedResources(preloadedResources);
+    }
+
+    setPreloadedResources(preloadedResources) {
+        this._preloadedResources = preloadedResources.map(url => this._getResolvedResourceUrl(url));
+    }
+
+    /**
+     * @param {boolean} debug
+     */
+    setDebug(debug = true) {
+        this._debug = debug;
     }
 
     /**
@@ -59,7 +60,9 @@ export default class ResourceLoader {
         // we can should resolved url as a name in performance entries
         const loadedResource = window.performance.getEntriesByName(this._getResolvedResourceUrl(resourceUrl), 'resource');
         if (loadedResource.length !== 0) {
-            console.log(`${resourceUrl} is already loaded`);
+            if (this._debug) {
+                console.log(`${resourceUrl} is already loaded`);
+            }
             return true;
         }
 
@@ -74,7 +77,9 @@ export default class ResourceLoader {
 
             const node = this._findResourceNodeByUrl(resourceUrl);
             if (node) {
-                console.log(`${resourceUrl} is found as a node`);
+                if (this._debug) {
+                    console.log(`${resourceUrl} is found as a node`);
+                }
                 return this._getLoadingPromiseFromNode(node, resourceUrl);
             }
 
@@ -115,7 +120,9 @@ export default class ResourceLoader {
     }
 
     _loadResource(resourceUrl) {
-        console.log(`${resourceUrl} will be inserted`);
+        if (this._debug) {
+            console.log(`${resourceUrl} will be inserted`);
+        }
         const url = this._getResolvedResourceUrl(resourceUrl);
         // if not we should load it ourselves
         // but in case it is currently loading we should store a promise

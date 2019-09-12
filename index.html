@@ -107,6 +107,9 @@
                 timeout: 60000
             });
 
+            // Enable logs to see how resources are loaded
+            window.resourceLoader.setDebug();
+
             apiInstance.interceptors.response.use(function (response) {
                 console.log(response);
                 const headers = response.headers['X-Resources'].split(',');

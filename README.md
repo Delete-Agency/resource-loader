@@ -39,7 +39,7 @@ const element = document.getElementById('app');
 /**
 * Server response example:
 * {
-*     resources: ["/accordion.css", "/accordion.js", "buttons.css"],
+*     resources: ["/accordion.css", "/accordion.js", "/buttons.css"],
 *     html: `
 *         <div data-accordion class="accordion">
 *             <buttons class="accordion__trigger button button--green" data-accordion-trigger>Open me</div>
@@ -107,6 +107,27 @@ Return if the specified resource was already loaded
 Type: `string`
 
 Relative or absolute URL of the resource
+
+### resourceLoader.setDebug(debug = true)
+
+Enable (or disable) debug mode for logging messages during loadResource() or load() about how and why a particular resource is going to be loaded 
+
+#### debug
+
+*Required*<br>
+Type: `string`<br>
+Default: `true`
+
+Relative or absolute URL of the resource
+
+## Note
+There can be some cases when we can get stuck waiting for the loading of the particular resource forever after calling loadResource() or load().
+It can happen when the desired resource is already rendered within the page and failed to load by the time we are trying to load them with resourceLoader.
+It happens because we rely on window.performance (Performance Timing API) which is inconsistent between browsers at the moment: 
+some of the implementations (Safari, Chrome) don't add PerformanceResource entry when particular resource is failed to load (but they will in the future according to the issue above).
+More details here: https://github.com/w3c/resource-timing/issues/12.
+As a result we think that the resource is still loading and will be waiting forever because obviously load and error events are not gonna be triggered.
+These cases aren't covered at the moment and will likely be fixed after browsers have consistent Performance Timing API implementation
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
