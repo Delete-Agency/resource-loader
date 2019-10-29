@@ -60,13 +60,17 @@ export default class ResourceLoader {
         // we can should resolved url as a name in performance entries
         const loadedResource = window.performance.getEntriesByName(this._getResolvedResourceUrl(resourceUrl), 'resource');
         if (loadedResource.length !== 0) {
-            if (this._debug) {
-                console.log(`${resourceUrl} is already loaded`);
-            }
+            this._log(`${resourceUrl} is already loaded`);
             return true;
         }
 
         return false;
+    }
+
+    _log(message) {
+        if (this._debug) {
+            console.log(message);
+        }
     }
 
     _getLoadingPromise(resourceUrl) {
@@ -77,9 +81,7 @@ export default class ResourceLoader {
 
             const node = this._findResourceNodeByUrl(resourceUrl);
             if (node) {
-                if (this._debug) {
-                    console.log(`${resourceUrl} is found as a node`);
-                }
+                this._log(`${resourceUrl} is found as a node`);
                 return this._getLoadingPromiseFromNode(node, resourceUrl);
             }
 
@@ -120,9 +122,7 @@ export default class ResourceLoader {
     }
 
     _loadResource(resourceUrl) {
-        if (this._debug) {
-            console.log(`${resourceUrl} will be inserted`);
-        }
+        this._log(`${resourceUrl} will be inserted`);
         const url = this._getResolvedResourceUrl(resourceUrl);
         // if not we should load it ourselves
         // but in case it is currently loading we should store a promise

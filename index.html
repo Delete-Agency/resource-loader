@@ -19,8 +19,8 @@
     <script src="https://cdn.jsdelivr.net/npm/axios-mock-adapter@1.17.0/dist/axios-mock-adapter.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@deleteagency/live-highlight@0.0.1/build/live-highlight.min.js"></script>
 
-    <link rel="stylesheet" href="examples/base.css">
-    <script src="build/resource-loader.min.js"></script>
+    <link rel="stylesheet" href="demo/base.css">
+    <script src="demo/dist/resource-loader.min.js"></script>
 </head>
 
 <script>
@@ -44,6 +44,10 @@
 <div class="py-4">
     <div class="container">
         <h2>Simple example</h2>
+        <p>
+            <b>NOTE:</b> If you open this page locally keep in mind that this demo works correctly only when it is opened on a proper domain like localhost.
+            If you try to open it from file system (file:///D:/...) Performance Timing API don't take local resources into account (probably because of broken CORS)
+        </p>
         <p>
             Lets assume we have some an endpoint which returns some html markup from the server which should be inserted to the page.
             As long as our JS and CSS are always loaded during the first page rendering we are fine.
@@ -91,7 +95,7 @@
                     200,
                     html,
                     {
-                        'X-Resources': "./examples/base.css,./examples/counter.js,./examples/counter.css"
+                        'X-Resources': "./demo/base.css,./demo/counter.js,./demo/counter.css"
                     }
                 ];
             });
@@ -103,6 +107,8 @@
         </p>
 
         <script data-live-highlight>
+            window.resourceLoader = new ResourceLoader();
+
             const apiInstance = axios.create({
                 timeout: 60000
             });
@@ -129,8 +135,8 @@
                 </div>
             </div>
             <p>
-                Open Chrome Dev Tools Network Tab and click on «Load content». Bacause examples/base.css is already rendered it won't be downloaded.
-                Unlike it examples/counter.js and examples/counter.css will be downloaded.
+                Open Chrome Dev Tools Network Tab and click on «Load content». Bacause demo/base.css is already rendered it won't be downloaded.
+                Unlike it demo/counter.js and demo/counter.css will be downloaded.
             </p>
         </div>
 
