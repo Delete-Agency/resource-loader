@@ -1,6 +1,6 @@
 {
   "name": "@deleteagency/resource-loader",
-  "version": "1.0.0-0",
+  "version": "1.0.0-1",
   "description": "Dynamically loads styles and js files to the page without duplicating",
   "main": "src/index.js",
   "files": [
