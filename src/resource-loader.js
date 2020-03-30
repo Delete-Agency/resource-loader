@@ -165,7 +165,7 @@ export default class ResourceLoader {
     _getResourceTypeByUrl(url) {
         if (url.match(/.\.css$/)) {
             return RESOURCE_TYPE_STYLES;
-        } else if (url.match(/.\.js$/)) {
+        } else if (url.match(/.\.m?js$/)) {
             return RESOURCE_TYPE_SCRIPT;
         }
 
